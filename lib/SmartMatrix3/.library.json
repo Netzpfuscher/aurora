@@ -1,0 +1,39 @@
+{
+    "description": "Drive multiplexed RGB matrix panels from your Teensy 3.2 or 3.1", 
+    "repository": {
+        "url": "https://github.com/pixelmatix/SmartMatrix", 
+        "type": "git"
+    }, 
+    "platforms": [
+        "atmelavr"
+    ], 
+    "export": {
+        "exclude": [
+            "extras", 
+            "docs", 
+            "tests", 
+            "test", 
+            "*.doxyfile", 
+            "*.pdf"
+        ], 
+        "include": null
+    }, 
+    "authors": [
+        {
+            "maintainer": true, 
+            "name": "Louis Beaudoin", 
+            "url": null, 
+            "email": "louis@pixelmatix.com"
+        }
+    ], 
+    "keywords": [
+        "display"
+    ], 
+    "id": 948, 
+    "name": "SmartMatrix3", 
+    "frameworks": [
+        "arduino"
+    ], 
+    "version": "3.0.2", 
+    "homepage": "http://docs.pixelmatix.com/SmartMatrix"
+}
