@@ -35,8 +35,8 @@
 
 // MSGEQ7 wiring
 #define AUDIO_LEFT_PIN A14
-#define MSGEQ7_STROBE_PIN 1
-#define MSGEQ7_RESET_PIN 0
+#define MSGEQ7_STROBE_PIN 31  //vorher 1
+#define MSGEQ7_RESET_PIN 30 //vorher 0
 
 const int bandCount = 7;
 // the 10Bit (0-1023) audio band values
@@ -260,7 +260,7 @@ void ReadAudio() {
       level = 1023;
     }
     else if(level < 0) level = 0;
-    
+
     levels[band] = level;
 
     if (level >= peaks[band]) {
