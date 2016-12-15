@@ -279,6 +279,7 @@ void setup()
 
   // Setup serial interface
   Serial.begin(115200);
+  Serial1.begin(115200);
 
   delay(250);
   // Serial.println(F("starting..."));
@@ -289,14 +290,14 @@ void setup()
   irReceiver.enableIRIn();
 
   // Initialize Matrix
-  matrix.addLayer(&backgroundLayer); 
-  matrix.addLayer(&scrollingLayer); 
-  matrix.addLayer(&indexedLayer); 
+  matrix.addLayer(&backgroundLayer);
+  matrix.addLayer(&scrollingLayer);
+  matrix.addLayer(&indexedLayer);
   matrix.begin();
-  
+
   matrix.setRotation(rotation);
   matrix.setBrightness(brightness);
-  
+
   scrollingLayer.enableColorCorrection(true);
   scrollingLayer.setFont(gohufont11b);
   scrollingLayer.setOffsetFromTop(25);
@@ -306,7 +307,7 @@ void setup()
 
   indexedLayer.enableColorCorrection(true);
   indexedLayer.setIndexedColor(1, {255, 255, 255});
-  
+
   backgroundLayer.enableColorCorrection(true);
   backgroundLayer.fillScreen(rgb24{ 0, 0, 0 });
   backgroundLayer.swapBuffers();
@@ -336,12 +337,12 @@ void setup()
   uint32_t rtcprescale=RTC_TPR;
   delay(1);
   hasTeensyRTC = rtcprescale != RTC_TPR;
-  
+
   // Serial.print(F("hasTeensyRTC: "));
   // Serial.println(hasTeensyRTC);
 
   clockDisplay.readTime();
-  
+
   // Serial.print(F("isTimeAvailable: "));
   // Serial.println(isTimeAvailable);
 
@@ -509,10 +510,10 @@ void powerOff()
 {
   // clear the display
   scrollingLayer.start("", 1);
-  
+
   indexedLayer.fillScreen(0);
   indexedLayer.swapBuffers();
-  
+
   backgroundLayer.fillScreen(CRGB(CRGB::Black));
   backgroundLayer.swapBuffers();
 
@@ -1024,7 +1025,9 @@ void readProductID() {
   }
 
   Serial.print("ProductID: 0x");
+  Serial1.print("ProductID: 0x");
   Serial.println(productID.value, HEX);
+  Serial1.println(productID.value, HEX);
 }
 
 #define CPU_RESTART_ADDR (uint32_t *)0xE000ED0C

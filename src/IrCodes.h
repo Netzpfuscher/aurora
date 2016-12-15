@@ -152,7 +152,7 @@ unsigned long readIRCode() {
   while (decodeIRCode() == code) {
     ;
   }
-  // Serial.println(code);
+  // Serial1.println(code);
   return code;
 }
 
@@ -448,15 +448,15 @@ void createFile(aJsonObject * root) {
   aJsonObject* property = aJson.getObjectItem(root, "length");
   if (property->type == aJson_Int) {
     length = property->valueint;
-    Serial.print(F("length: "));
-    Serial.println(length);
+    Serial1.print(F("length: "));
+    Serial1.println(length);
   }
 
   property = aJson.getObjectItem(root, "path");
   if (property->type == aJson_String) {
     strcpy(path, property->valuestring);
-    Serial.print(F("path: "));
-    Serial.println(path);
+    Serial1.print(F("path: "));
+    Serial1.println(path);
   }
 
   if (length < 1) return;
@@ -471,8 +471,8 @@ void createFile(aJsonObject * root) {
   uint32_t bytesWritten = 0;
 
   while (bytesWritten < length) {
-    if (Serial.available() > 0) {
-      int b = Serial.read();
+    if (Serial1.available() > 0) {
+      int b = Serial1.read();
       if (b >= 0) {
         file.write((byte) b);
         bytesWritten++;
@@ -488,13 +488,13 @@ void createFile(aJsonObject * root) {
 }
 
 InputCommand readSerialCommand() {
-  if (Serial.available() < 1)
+  if (Serial1.available() < 1)
     return InputCommand::None;
 
-  if (Serial.peek() != '{')
+  if (Serial1.peek() != '{')
     return InputCommand::None;
 
-  aJsonStream stream(&Serial);
+  aJsonStream stream(&Serial1);
 
   //Serial.print(F("Parsing json..."));
   aJsonObject* root = aJson.parse(&stream);
