@@ -236,7 +236,7 @@ class Patterns : public Playlist {
     }
 
     unsigned int drawFrame() {
-      ReadAudio();
+      //ReadAudio();
       return currentItem->drawFrame();
     }
 

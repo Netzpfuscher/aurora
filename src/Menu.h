@@ -330,18 +330,6 @@ public:
           updateScrollText = true;
           break;
         }
-        else if ((command == InputCommand::AudioScaleUp || (command == InputCommand::Up && !visible)) && currentMenuItem->audioScaleEnabled) {
-          adjustAudioScale(1);
-          audioScaleChanged = true;
-          showingAudioScaleIndicator = true;
-          audioScaleIndicatorTimout = millis() + audioScaleIndicatorDuration;
-        }
-        else if ((command == InputCommand::AudioScaleDown || (command == InputCommand::Down && !visible)) && currentMenuItem->audioScaleEnabled) {
-          adjustAudioScale(-1);
-          audioScaleChanged = true;
-          showingAudioScaleIndicator = true;
-          audioScaleIndicatorTimout = millis() + audioScaleIndicatorDuration;
-        }
         else if (command == InputCommand::ToggleSettingsMenuVisibility) {
           toggleSettingsMenuVisibility();
         }
@@ -432,11 +420,6 @@ private:
       updateScrollText = true;
     }
 
-    if (showingAudioScaleIndicator && millis() >= audioScaleIndicatorTimout) {
-      showingAudioScaleIndicator = false;
-      updateScrollText = true;
-    }
-
     if (showingPaletteIndicator && millis() >= paletteIndicatorTimout) {
       showingPaletteIndicator = false;
       updateScrollText = true;
@@ -447,14 +430,14 @@ private:
       updateScrollText = true;
     }
 
-    if (currentIndex != previousIndex || updateScrollText || playModeChanged || brightnessChanged || audioScaleChanged || paletteChanged) {
+    if (currentIndex != previousIndex || updateScrollText || playModeChanged || brightnessChanged || paletteChanged) {
       previousIndex = currentIndex;
       updateScrollText = false;
 
       indexedLayer.fillScreen(0);
 
       scrollingLayer.start("", 1);
-        
+
       if (brightnessChanged || showingBrightnessIndicator) {
         brightnessChanged = false;
         indexedLayer.setFont(gohufont11b);
@@ -468,19 +451,6 @@ private:
         sprintf(text, "%3d%%", level);
 
         indexedLayer.drawString(4, 11, 1, text);
-      }
-      else if (audioScaleChanged || showingAudioScaleIndicator) {
-        audioScaleChanged = false;
-        indexedLayer.setFont(font3x5);
-        indexedLayer.setIndexedColor(1, menuColor);
-
-        char text[8];
-        if (audioScale == 0)
-          sprintf(text, "Auto:%d", autoAudioScale);
-        else
-          sprintf(text, "%d", audioScale);
-
-        indexedLayer.drawString(1, 1, 1, text);
       }
       else if (paletteChanged || showingPaletteIndicator) {
         paletteChanged = false;
@@ -546,13 +516,13 @@ private:
 //        scrollingLayer.start("", 1);
 //      }
 
-      if (!visible && !showingPlayModeIndicator && !showingBrightnessIndicator && !showingAudioScaleIndicator && !showingPaletteIndicator && clockVisible) {
+      if (!visible && !showingPlayModeIndicator && !showingBrightnessIndicator  && !showingPaletteIndicator && clockVisible) {
         clockDisplay.drawFrame();
       }
 
       indexedLayer.swapBuffers();
     }
-    else if (!visible && !showingPlayModeIndicator && !showingBrightnessIndicator && !showingAudioScaleIndicator && !showingPaletteIndicator && clockVisible) {
+    else if (!visible && !showingPlayModeIndicator && !showingBrightnessIndicator  && !showingPaletteIndicator && clockVisible) {
       indexedLayer.fillScreen(0);
 
       clockDisplay.drawFrame();

@@ -72,7 +72,7 @@ char* auroraPath = (char *) "/aurora/";
 #include <aJSON.h>
 
 #define GAMES 0
-#define WEATHER 0
+#define WEATHER 1
 
 SMARTMATRIX_ALLOCATE_BUFFERS(matrix, kMatrixWidth, kMatrixHeight, kRefreshDepth, kDmaBufferRows, kPanelType, kMatrixOptions);
 SMARTMATRIX_ALLOCATE_BACKGROUND_LAYER(backgroundLayer, kMatrixWidth, kMatrixHeight, COLOR_DEPTH, kBackgroundLayerOptions);
@@ -105,7 +105,6 @@ MessagePlayer messagePlayer;
 // settings file names
 char* brghtnssFilename = (char*) "brghtnss.txt";
 char* bckbrghtFilename = (char*) "bckbrght.txt";
-char* audiosclFilename = (char*) "audioscl.txt";
 char* menuRFilename = (char*) "menuR.txt";
 char* menuGFilename = (char*) "menuG.txt";
 char* menuBFilename = (char*) "menuB.txt";
@@ -115,9 +114,6 @@ char* autoplydFilename = (char*) "autoplyd.txt";
 // function prototypes used in header files
 void saveByteSetting(const char* name, byte value);
 uint16_t XY(uint8_t x, uint8_t y);
-void listAudioPatterns();
-bool setAudioPattern(String name);
-bool setAudioPattern(int index);
 void listPatterns();
 bool setPattern(String name);
 bool setPattern(int index);
@@ -159,7 +155,6 @@ void loadSettings();
 void saveSettings();
 
 
-#include "AudioLogic.h"
 
 #include "Effects.h"
 Effects effects;
@@ -196,9 +191,6 @@ ClockDisplay clockDisplay;
 #include "Patterns.h"
 Patterns patterns;
 
-#include "AudioPatterns.h"
-AudioPatterns audioPatterns;
-
 #include "Animations.h"
 Animations animations;
 
@@ -231,7 +223,7 @@ Settings settings;
 #include "SettingsSetTime.h"
 #include "SettingsMoveClock.h"
 
-MenuItem menuItemAudioPatterns = MenuItem(audioPatterns.name, &audioPatterns);
+//MenuItem menuItemAudioPatterns = MenuItem(audioPatterns.name, &audioPatterns);
 MenuItem menuItemPatterns = MenuItem(patterns.name, &patterns);
 MenuItem menuItemAnimations = MenuItem(animations.name, &animations);
 #if GAMES > 0
@@ -244,7 +236,6 @@ MenuItem menuItemSettings = MenuItem(settings.name, &settings);
 
 // Main Menu
 MenuItem* mainMenuItems [] = {
-  &menuItemAudioPatterns,
   &menuItemPatterns,
   &menuItemAnimations,
 #if GAMES > 0
@@ -258,7 +249,7 @@ MenuItem* mainMenuItems [] = {
 
 int mainMenuItemCount;
 
-bool enableAudioPatterns = true;
+bool enableAudioPatterns = false;
 
 time_t getTeensy3Time()
 {
@@ -279,7 +270,7 @@ void setup()
 
   // Setup serial interface
   Serial.begin(115200);
-  Serial1.begin(115200);
+  Serial1.begin(2000000);
 
   delay(250);
   // Serial.println(F("starting..."));
@@ -314,7 +305,7 @@ void setup()
 
   pinMode(SD_CARD_CS, OUTPUT);
   sdAvailable = SD.begin(SD_CARD_CS);
-  if (sdAvailable) {
+    if (sdAvailable) {
     animations.setup((char *)"/gifs/");
     messagePlayer.setup((char *)"/messages/");
   }
@@ -322,7 +313,6 @@ void setup()
   // setup the effects generator
   effects.Setup();
 
-  InitAudio();
 
   mainMenuItemCount = sizeof(mainMenuItems) / sizeof(MenuItem*);
 
@@ -355,8 +345,7 @@ void setup()
   if (sdAvailable) {
     loadRemotesSetting();
     loadRotationSetting();
-    enableAudioPatterns = loadByteSetting("enaudpat.txt", 1) > 0;
-
+    //enableAudioPatterns = loadByteSetting("enaudpat.txt", 1) > 0;
 #if GAMES > 0
     menuItemGames.visible = loadByteSetting("gamesvis.txt", 1) > 0;
 #endif
@@ -364,9 +353,7 @@ void setup()
     clockDisplay.loadSettings();
 
     loadOverlaySettings();
-
     loadDemoModeSetting();
-
     if (demoMode == 0) {
       loadSettings();
     }
@@ -382,9 +369,6 @@ void setup()
     menu.visible = false;
   }
 
-  menuItemAudioPatterns.visible = enableAudioPatterns;
-  menuItemAudioPatterns.playModeEnabled = true;
-  menuItemAudioPatterns.paletteEnabled = true;
 
   menuItemPatterns.playModeEnabled = true;
   menuItemPatterns.paletteEnabled = true;
@@ -416,28 +400,6 @@ void loadOverlaySettings() {
 void loop()
 {
   menu.run(mainMenuItems, mainMenuItemCount);
-}
-
-void listAudioPatterns() {
-  audioPatterns.listAudioPatterns();
-}
-
-bool setAudioPattern(String name) {
-  if (audioPatterns.setAudioPattern(name)) {
-    menu.currentIndex = 0;
-    menu.visible = false;
-    return true;
-  }
-  return false;
-}
-
-bool setAudioPattern(int index) {
-  if (audioPatterns.setAudioPattern(index)) {
-    menu.currentIndex = 0;
-    menu.visible = false;
-    return true;
-  }
-  return false;
 }
 
 void listPatterns() {
@@ -508,6 +470,7 @@ bool setWeatherType(int type) {
 
 void powerOff()
 {
+  Serial.println(F("power off"));
   // clear the display
   scrollingLayer.start("", 1);
 
@@ -617,20 +580,14 @@ void loadSettings() {
   boundBackgroundBrightness();
   backgroundLayer.setBrightness(backgroundBrightness);
 
-  audioScale = loadByteSetting(audiosclFilename, 0);
-  boundAudioScale();
-
   menuColor.red = loadByteSetting(menuRFilename, 0);
   menuColor.green = loadByteSetting(menuGFilename, 0);
   menuColor.blue = loadByteSetting(menuBFilename, 255);
-
   autoPlayDurationSeconds = loadIntSetting(autoplydFilename, 3, 10);
-
   settings.load();
 }
 
 void saveSettings() {
-  saveAudioScaleSetting();
   saveBrightnessSetting();
   saveBackgroundBrightnessSetting();
   saveMenuColor();
@@ -738,7 +695,6 @@ void adjustDemoMode(int delta) {
 }
 
 void applyDemoMode() {
-  menuItemAudioPatterns.audioScaleEnabled = demoMode == 0;
 
   if (demoMode != 0) {
     menu.visible = false;
@@ -1025,9 +981,7 @@ void readProductID() {
   }
 
   Serial.print("ProductID: 0x");
-  Serial1.print("ProductID: 0x");
   Serial.println(productID.value, HEX);
-  Serial1.println(productID.value, HEX);
 }
 
 #define CPU_RESTART_ADDR (uint32_t *)0xE000ED0C

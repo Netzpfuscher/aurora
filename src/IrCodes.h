@@ -48,8 +48,6 @@ enum class InputCommand {
   BrightnessDown,
   Menu,
   ShowCurrentMessage,
-  AudioScaleUp,
-  AudioScaleDown,
   ToggleSettingsMenuVisibility,
   ShowPatternName,
   FreezeDisplay,
@@ -292,14 +290,8 @@ InputCommand getCommand(unsigned long input) {
       case IRCODE_ADAFRUIT_5:
         return InputCommand::ToggleSettingsMenuVisibility;
 
-      case IRCODE_ADAFRUIT_6:
-        return InputCommand::AudioScaleUp;
-
       case IRCODE_ADAFRUIT_7:
         return InputCommand::FreezeDisplay;
-
-      case IRCODE_ADAFRUIT_9:
-        return InputCommand::AudioScaleDown;
 
       case IRCODE_ADAFRUIT_0_10_PLUS:
         return InputCommand::ShowPatternName;
@@ -539,25 +531,6 @@ InputCommand readSerialCommand() {
     command = InputCommand::None;
   }
 
-  // audio pattern
-  item = aJson.getObjectItem(root, "audiopattern");
-  if (item && item->type == aJson_String) {
-    //Serial.print(F("Loading audiopattern "));
-    //Serial.println(item->valuestring);
-    if (setAudioPattern(item->valuestring))
-      command = InputCommand::Update;
-    else
-      command = InputCommand::None;
-  }
-  else if (item && item->type == aJson_Int) {
-    //Serial.print(F("Loading audiopattern "));
-    //Serial.println(item->valueint);
-    if (setAudioPattern(item->valueint))
-      command = InputCommand::Update;
-    else
-      command = InputCommand::None;
-  }
-
   // pattern
   item = aJson.getObjectItem(root, "pattern");
   if (item && item->type == aJson_String) {
@@ -625,10 +598,6 @@ InputCommand readSerialCommand() {
     // custom commands
     if ((String) item->valuestring == "ListAnimations") {
       listAnimations();
-      command = InputCommand::None;
-    }
-    else if ((String) item->valuestring == "ListAudioPatterns") {
-      listAudioPatterns();
       command = InputCommand::None;
     }
     else if ((String) item->valuestring == "ListPatterns") {

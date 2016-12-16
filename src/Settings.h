@@ -33,7 +33,6 @@
 #include "SettingsMenuColor.h"
 #include "SettingsMoveMenu.h"
 #include "SettingsAutoplayDuration.h"
-#include "SettingsAudioCalibration.h"
 #include "SettingsUpdateFiles.h"
 //#include "SettingsDemoMode.h"
 
@@ -49,12 +48,11 @@ class Settings : public Runnable {
     SettingsSetDate setDate;
     SettingsClock24Hour set24Hour;
     SettingsAutoplayDuration setAutoplayDuration;
-    SettingsAudioCalibration audioCalibration;
     SettingsUpdateFiles updateFiles;
     //SettingsDemoMode demoMode;
     Drawable exit;
 
-    static const int itemCount = 13;
+    static const int itemCount = 12;
 
     MenuItem menuItemBrightness = MenuItem((char *)"Brightness", &brightness);
     MenuItem menuItemBgBrightness = MenuItem((char *)"BG Brightness", &backgroundBrightness);
@@ -66,7 +64,6 @@ class Settings : public Runnable {
     MenuItem menuItemClock24Hour = MenuItem((char *)"12/24 Hour Clock", &set24Hour);
     MenuItem menuItemSetTime = MenuItem((char *)"Set Time", &setTime);
     MenuItem menuItemSetDate = MenuItem((char *)"Set Date", &setDate);
-    MenuItem menuItemNoiseReduction = MenuItem((char *)"Audio Calibration", &audioCalibration);
     MenuItem menuItemUpdateFiles = MenuItem((char *)"Update Files", &updateFiles);
     //MenuItem menuItemDemoMode = MenuItem((char *)"Demo Mode", &demoMode);
     MenuItem menuItemExit = MenuItem((char *)"Exit Settings", &exit, true);
@@ -82,7 +79,6 @@ class Settings : public Runnable {
       &menuItemClock24Hour,
       &menuItemSetTime,
       &menuItemSetDate,
-      &menuItemNoiseReduction,
       &menuItemUpdateFiles,
       //&menuItemDemoMode,
       &menuItemExit,
@@ -124,14 +120,14 @@ class Settings : public Runnable {
 
   public:
     Menu settingsMenu;
-    
+
     Settings() {
     }
 
     char* Drawable::name = (char *)"Settings";
 
     void load() {
-      audioCalibration.load();
+    //  audioCalibration.load();
       menuY = loadByteSetting(menuYFilename, 11);
     }
 
