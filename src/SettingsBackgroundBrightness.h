@@ -76,7 +76,7 @@ class SettingsBackgroundBrightness : public Runnable {
         indexedLayer.drawString(4, 11, 1, text);
         indexedLayer.swapBuffers();
 
-        InputCommand command = readCommand(defaultHoldDelay);
+        InputCommand command = readCommand();
 
         switch (command) {
           case InputCommand::Up:

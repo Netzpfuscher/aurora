@@ -38,7 +38,7 @@ class SettingsMoveClock : public Runnable {
         backgroundLayer.swapBuffers();
         indexedLayer.swapBuffers();
 
-        InputCommand command = readCommand(defaultHoldDelay);
+        InputCommand command = readCommand();
 
         switch (command) {
           case InputCommand::Up:

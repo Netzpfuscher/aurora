@@ -61,7 +61,6 @@ rgb24 red = { 255, 0, 0 };
 char* auroraPath = (char *) "/aurora/";
 
 #include <FastLED.h>
-#include <IRremote.h>
 #include <SPI.h>
 #include <SD.h>
 
@@ -85,7 +84,6 @@ elapsedMillis sinceStatusLedToggled;
 boolean statusLedState = false;
 
 bool sdAvailable = false;
-IRrecv irReceiver(IR_RECV_PIN);
 
 boolean hasDS1307RTC = false;
 boolean hasTeensyRTC = false;
@@ -249,7 +247,6 @@ MenuItem* mainMenuItems [] = {
 
 int mainMenuItemCount;
 
-bool enableAudioPatterns = false;
 
 time_t getTeensy3Time()
 {
@@ -274,11 +271,6 @@ void setup()
 
   delay(250);
   // Serial.println(F("starting..."));
-
-  readProductID();
-
-  // Initialize the IR receiver
-  irReceiver.enableIRIn();
 
   // Initialize Matrix
   matrix.addLayer(&backgroundLayer);
@@ -343,7 +335,6 @@ void setup()
   menu.currentIndex = 1;
 
   if (sdAvailable) {
-    loadRemotesSetting();
     loadRotationSetting();
     //enableAudioPatterns = loadByteSetting("enaudpat.txt", 1) > 0;
 #if GAMES > 0
@@ -360,8 +351,6 @@ void setup()
     else {
       saveSettings();
     }
-
-    applyDemoMode();
   }
 
   if (!HAS_IR) {
@@ -502,48 +491,6 @@ void powerOff()
 char* demoModeFilename = (char*) "demomode.txt";
 void loadDemoModeSetting() {
   demoMode = loadByteSetting(demoModeFilename, 0);
-}
-
-// Loads which remote(s) should be enabled. This setting is loaded separately
-// from other settings, as this applies moreso in demo mode than any other time.
-void loadRemotesSetting() {
-  // remotes setting is a bitmask:
-  // 1 sparkfun
-  // 2 adafruit
-  // 3 sparkfun & adafruit
-  // 4 smartmatrix
-  // 5 sparkfun & smartmatrix
-  // 6 adafruit & smartmatrix
-  // 7 sparkfun, adafruit & smartmatrix
-  // 8 ronix? six button remote
-
-  byte remotes = loadByteSetting("remotes.txt", 7);
-
-  // Serial.print(F("remotes setting is "));
-  // Serial.println(remotes);
-
-  sparkfunRemoteEnabled = (remotes & 1) == 1;
-  adafruitRemoteEnabled = (remotes & 2) == 2;
-  smartMatrixRemoteEnabled = (remotes & 4) == 4;
-  ronixSixButtonRemoteEnabled = (remotes & 8) == 8;
-
-  // Serial.print(F("sparkfun remote is "));
-  // Serial.println(sparkfunRemoteEnabled ? F("enabled") : F("disabled"));
-
-  // Serial.print(F("adafruit remote is "));
-  // Serial.println(adafruitRemoteEnabled ? F("enabled") : F("disabled"));
-
-  // Serial.print(F("smartmatrix remote is "));
-  // Serial.println(smartMatrixRemoteEnabled ? F("enabled") : F("disabled"));
-
-  // if no remotes are enabled, fall back and enable them all
-  if (!sparkfunRemoteEnabled && !adafruitRemoteEnabled && !smartMatrixRemoteEnabled && !ronixSixButtonRemoteEnabled) {
-    // Serial.println(F("enabling all remotes"));
-    sparkfunRemoteEnabled = true;
-    adafruitRemoteEnabled = true;
-    smartMatrixRemoteEnabled = true;
-    ronixSixButtonRemoteEnabled = true;
-  }
 }
 
 void loadRotationSetting() {
@@ -694,44 +641,6 @@ void adjustDemoMode(int delta) {
   applyDemoMode();
 }
 
-void applyDemoMode() {
-
-  if (demoMode != 0) {
-    menu.visible = false;
-
-    switch (demoMode) {
-      case 1: // autoplay audio patterns
-        menu.currentIndex = 0;
-        menu.playMode = Menu::PlaybackState::Autoplay;
-        break;
-
-      case 2: // random audio patterns
-        menu.currentIndex = 0;
-        menu.playMode = Menu::PlaybackState::Random;
-        break;
-
-      case 3: // autoplay patterns
-        menu.currentIndex = 1;
-        menu.playMode = Menu::PlaybackState::Autoplay;
-        break;
-
-      case 4: // random patterns
-        menu.currentIndex = 1;
-        menu.playMode = Menu::PlaybackState::Random;
-        break;
-
-      case 5: // autoplay animations
-        menu.currentIndex = 2;
-        menu.playMode = Menu::PlaybackState::Autoplay;
-        break;
-
-      case 6: // random animations
-        menu.currentIndex = 2;
-        menu.playMode = Menu::PlaybackState::Random;
-        break;
-    }
-  }
-}
 
 void saveBrightnessSetting() {
   saveByteSetting(brghtnssFilename, brightness);
@@ -955,33 +864,6 @@ bool hasExternalPower() {
 #else
   return true;
 #endif
-}
-
-union ProductID
-{
-   unsigned long value;
-   byte bytes[4];
-};
-
-ProductID productID;
-
-void readProductID() {
-  productID.bytes[0] = (*(uint8_t *)0x7FFC);
-  productID.bytes[1] = (*(uint8_t *)0x7FFD);
-  productID.bytes[2] = (*(uint8_t *)0x7FFE);
-  productID.bytes[3] = (*(uint8_t *)0x7FFF);
-
-  switch(productID.value) {
-    case 0x10000000:
-      supportsUsbPower = true;
-      break;
-
-    default:
-      supportsUsbPower = false;
-  }
-
-  Serial.print("ProductID: 0x");
-  Serial.println(productID.value, HEX);
 }
 
 #define CPU_RESTART_ADDR (uint32_t *)0xE000ED0C

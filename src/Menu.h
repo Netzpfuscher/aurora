@@ -119,25 +119,25 @@ public:
 
         updateForeground(menuItems, menuItemsCount);
 
-        InputCommand command = readCommand(defaultHoldDelay);
+        InputCommand command = readCommand();
 
-        if (command == InputCommand::Up && visible && !isHolding) {
+        if (command == InputCommand::Up && visible) {
           currentPlaylist->stop();
           move(menuItems, menuItemsCount, -1);
           break;
         }
-        else if (command == InputCommand::Down && visible && !isHolding) {
+        else if (command == InputCommand::Down && visible) {
           currentPlaylist->stop();
           move(menuItems, menuItemsCount, 1);
           break;
         }
-        else if (command == InputCommand::Left && showingPaletteIndicator && !isHolding && currentMenuItem->paletteEnabled) {
+        else if (command == InputCommand::Left && showingPaletteIndicator&& currentMenuItem->paletteEnabled) {
           effects.CyclePalette(-1);
           paletteChanged = true;
           showingPaletteIndicator = true;
           paletteIndicatorTimout = millis() + paletteIndicatorDuration;
         }
-        else if (command == InputCommand::Left && showingPlayModeIndicator && !isHolding && currentMenuItem->playModeEnabled) {
+        else if (command == InputCommand::Left && showingPlayModeIndicator && currentMenuItem->playModeEnabled) {
           adjustPlayMode(-1);
         }
         else if (command == InputCommand::Left && isPlaylist) {
@@ -151,13 +151,13 @@ public:
           }
           break;
         }
-        else if (command == InputCommand::Right && showingPaletteIndicator && !isHolding && currentMenuItem->paletteEnabled) {
+        else if (command == InputCommand::Right && showingPaletteIndicator && currentMenuItem->paletteEnabled) {
           effects.CyclePalette(1);
           paletteChanged = true;
           showingPaletteIndicator = true;
           paletteIndicatorTimout = millis() + paletteIndicatorDuration;
         }
-        else if (command == InputCommand::Right && showingPlayModeIndicator && !isHolding && currentMenuItem->playModeEnabled) {
+        else if (command == InputCommand::Right && showingPlayModeIndicator && currentMenuItem->playModeEnabled) {
           adjustPlayMode(1);
         }
         else if (command == InputCommand::Right && isPlaylist) {
@@ -171,15 +171,15 @@ public:
           }
           break;
         }
-        else if (command == InputCommand::Select && showingPaletteIndicator && !isHolding && currentMenuItem->paletteEnabled) {
+        else if (command == InputCommand::Select && showingPaletteIndicator && currentMenuItem->paletteEnabled) {
           showingPaletteIndicator = false;
           updateScrollText = true;
         }
-        else if (command == InputCommand::Select && showingPlayModeIndicator && !isHolding && currentMenuItem->playModeEnabled) {
+        else if (command == InputCommand::Select && showingPlayModeIndicator && currentMenuItem->playModeEnabled) {
           showingPlayModeIndicator = false;
           updateScrollText = true;
         }
-        else if (command == InputCommand::Select && !isHolding) {
+        else if (command == InputCommand::Select) {
           if (currentMenuItem->exit) {
             currentIndex = 0;
             previousIndex = -1;
@@ -214,20 +214,17 @@ public:
           }
         }
         else if (command == InputCommand::CycleBrightness) {
-          bool wasHolding = isHolding;
-          if (isHolding || (showingBrightnessIndicator && cycleBrightness() == 0)) {
-            heldButtonHasBeenHandled();
+          if (showingBrightnessIndicator && cycleBrightness() == 0) {
             powerOff();
             previousIndex = -1;
             if (currentMenuItem->drawable)
               currentMenuItem->drawable->stop();
           }
 
-          if (!wasHolding) {
             brightnessChanged = true;
             showingBrightnessIndicator = true;
             brightnessIndicatorTimout = millis() + brightnessIndicatorDuration;
-          }
+
         }
         else if (command == InputCommand::Power) {
           powerOff();
@@ -249,11 +246,11 @@ public:
           showingBrightnessIndicator = true;
           brightnessIndicatorTimout = millis() + brightnessIndicatorDuration;
         }
-        else if (command == InputCommand::PlayMode && !isHolding && currentMenuItem->playModeEnabled) { // cycle play mode (pause/play/random)
+        else if (command == InputCommand::PlayMode && currentMenuItem->playModeEnabled) { // cycle play mode (pause/play/random)
           if (showingPlayModeIndicator) adjustPlayMode(1);
           else adjustPlayMode(0);
         }
-        else if (command == InputCommand::Palette && !isHolding && currentMenuItem->paletteEnabled) { // cycle color pallete
+        else if (command == InputCommand::Palette && currentMenuItem->paletteEnabled) { // cycle color pallete
           if (showingPaletteIndicator)
             effects.CyclePalette();
           paletteChanged = true;
@@ -276,8 +273,7 @@ public:
           updateScrollText = true;
         }
         else if (command == InputCommand::CycleClockAndMessageFiles && !visible) { // cycle through clock faces and messages
-          if (isHolding || (!clockVisible && !messageVisible)) {
-            if (isHolding) heldButtonHasBeenHandled();
+          if (!clockVisible && !messageVisible) {
 
             if (!clockVisible && !messageVisible) {
               // if neither are visible, just show the current overlay

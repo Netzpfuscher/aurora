@@ -46,7 +46,7 @@ class SettingsSetTime : public Runnable {
       while (true) {
         draw();
 
-        InputCommand command = readCommand(defaultHoldDelay);
+        InputCommand command = readCommand();
 
         switch (command) {
           case InputCommand::Up:

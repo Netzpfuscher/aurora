@@ -125,7 +125,7 @@ class SettingsMenuColor : public Runnable {
         indexedLayer.swapBuffers();
         backgroundLayer.swapBuffers();
 
-        InputCommand command = readCommand(defaultHoldDelay);
+        InputCommand command = readCommand();
 
         switch (command) {
           case InputCommand::Left:

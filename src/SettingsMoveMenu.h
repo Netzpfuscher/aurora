@@ -36,7 +36,7 @@ class SettingsMoveMenu : public Runnable {
 
         uint8_t x = 0;
         uint8_t y = menuY;
-        
+
         indexedLayer.setIndexedColor(1, menuColor);
         indexedLayer.fillScreen(0);
         indexedLayer.drawString(x, y, 0, "Move Menu");
@@ -44,15 +44,15 @@ class SettingsMoveMenu : public Runnable {
         for (int16_t x = 2; x <= 26; x += 6) {
           // upper indicators
           backgroundLayer.drawTriangle(x + 0, y - 1, x + 1, y - 2, x + 2, y - 1, CRGB(CRGB::SlateGray));
-  
+
           // lower indicators
           backgroundLayer.drawTriangle(x + 0, y + 11, x + 1, y + 12, x + 2, y + 11, CRGB(CRGB::SlateGray));
         }
-        
+
         backgroundLayer.swapBuffers();
         indexedLayer.swapBuffers();
 
-        InputCommand command = readCommand(defaultHoldDelay);
+        InputCommand command = readCommand();
 
         switch (command) {
           case InputCommand::Up:
@@ -83,7 +83,7 @@ class SettingsMoveMenu : public Runnable {
       if(menuY < 0) menuY = 0;
       if(menuY > MATRIX_HEIGHT - 11) menuY = MATRIX_HEIGHT - 11;
     }
-    
+
     void saveMenuY() {
       saveByteSetting(menuYFilename, menuY);
     }
